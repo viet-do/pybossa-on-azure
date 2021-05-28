@@ -1,0 +1,33 @@
+apiVersion: 2019-12-01
+location: eastus
+name: pybossa-pbworker-pvt
+properties:
+  containers:
+  - name: pb-worker
+    properties:
+      image: <registry-name>.azurecr.io/pybossa:latest
+      environmentVariables:
+        - name: 'POSTGRES_URL'
+          value: 'postgresql://<username>:<password>@<servername>.postgres.database.azure.com/pybossa'
+        - name: 'REDIS_SENTINEL'
+          value: '<redis-sentinel-ip>'
+        - name: 'REDIS_MASTER'
+          value: 'mymaster'
+      command:
+        - "/bin/sh"
+        - "-c"
+        - "/entrypoint.sh; python app_context_rqworker.py scheduled_jobs super high medium low email maintenance"
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1.5  
+  osType: Linux   
+  networkProfile:
+    id: <network-profile-id>
+  restartPolicy: Always    
+  imageRegistryCredentials:
+  - server: <registry-name>.azurecr.io
+    username: <registry-username>
+    password: <registry-password>     
+tags: null
+type: Microsoft.ContainerInstance/containerGroups

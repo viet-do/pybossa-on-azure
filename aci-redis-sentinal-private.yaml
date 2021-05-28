@@ -1,0 +1,32 @@
+apiVersion: 2019-12-01
+location: eastus
+name: pybossa-redis-sentinel-pvt
+properties:
+  containers:
+  - name: redis-sentinel
+    properties:
+      image: <registry-name>.azurecr.io/redis-sentinel
+      environmentVariables:
+        - name: 'REDIS_MASTER'
+          value: '<redis-container-ip>'      
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1.5
+      ports:
+      - port: 26379
+  osType: Linux
+  ipAddress:
+    type: Private    
+    ports:
+    - protocol: tcp
+      port: 26379
+  networkProfile:
+    id: <network-profile-id>
+  restartPolicy: Always    
+  imageRegistryCredentials:
+  - server: <registry-name>.azurecr.io
+    username: <registry-username>
+    password: <registry-password>      
+tags: null
+type: Microsoft.ContainerInstance/containerGroups

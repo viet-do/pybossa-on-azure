@@ -117,6 +117,6 @@ az webapp vnet-integration add -g pybossa -n <app-name> --vnet pybossa-vnet --su
 
 ```
 
-Launch the application by navigating to *https://<app-name>.azurewebsites.net* 
+Launch the application by navigating to *https://{app-name}.azurewebsites.net* 
 
 

@@ -1,8 +1,8 @@
 # Deploying Pybossa application in Azure
 
 ### prerequisite
-Install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli)
-Install [Docker](https://docs.docker.com/docker-for-windows/install/)
+- Install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli)
+- Install [Docker](https://docs.docker.com/docker-for-windows/install/)
 
 
 ### Create Container Registry
@@ -11,7 +11,7 @@ Create a Resource group named *pybossa*
 az group create --name pybossa --location eastus
 ```
 
-Create an [Azure Container Registry] (https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-azure-cli) to store the images
+Create an [Azure Container Registry](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-azure-cli) to store the images
 ```azurecli
 az acr create --resource-group pybossa --name <registry-name> --sku Basic
 az acr login --name <registry-name>
@@ -28,15 +28,16 @@ git clone https://github.com/seenu433/pybossa-on-azure
 ```bash
 # building the redis sentinel image
 cd docker-redis-sentinel
-docker build -t <registry>.azurecr.io/redis-sentinel:latest . 
-docker push <registry>.azurecr.io/redis-sentinel:latest
+docker build -t <registry-name>.azurecr.io/redis-sentinel:latest . 
+docker push <registry-name>.azurecr.io/redis-sentinel:latest
 
 # building the pybossa image
 cd ..
 cd docker-pybossa
 dos2unix entrypoint.sh  # run this command if using windows command prompt
-docker build -t <registry>.azurecr.io/pybossa:latest .
-docker push <registry>.azurecr.io/pybossa:latest
+docker build -t <registry-name>.azurecr.io/pybossa:latest .
+docker push <registry-name>.azurecr.io/pybossa:latest
+cd ..
 ```
 
 ### Create the database
@@ -48,7 +49,7 @@ Create database with name *pybossa*
 Create the schema for the database by running the pybossa db_create package
 
 ```bash
-docker run --rm -it -e POSTGRES_URL="postgresql://<username>:<password>@<servername>.postgres.database.azure.com/pybossa" <registry>.azurecr.io/pybossa:latest python cli.py db_create
+docker run --rm -it -e POSTGRES_URL="postgresql://<username>:<password>@<servername>.postgres.database.azure.com/pybossa" <registry-name>.azurecr.io/pybossa:latest python cli.py db_create
 ```
 
 ### Test the app locally
@@ -58,10 +59,10 @@ Run the container locally to test. Docker installation required.
 docker run -d --name redis-master redis:3.0-alpine
 
 # Install redis-sentinel
-docker run -d --name redis-sentinel  --link redis-master  <registry>.azurecr.io/redis-sentinel
+docker run -d --name redis-sentinel  --link redis-master  <registry-name>.azurecr.io/redis-sentinel
 
 # Install pybossa app
-docker run -d --name pybossa --link redis-master --link redis-sentinel   -e POSTGRES_URL="postgresql://<username>:<password>@<servername>.postgres.database.azure.com/pybossa" -p 8080:8080  <registry>.azurecr.io/pybossa:latest
+docker run -d --name pybossa --link redis-master --link redis-sentinel -e POSTGRES_URL="postgresql://<username>:<password>@<servername>.postgres.database.azure.com/pybossa" -p 8080:8080  <registry-name>.azurecr.io/pybossa:latest
 ```
 
 Test the app by opening a browser window and navigating to *http://localhost:8080*
@@ -75,19 +76,19 @@ az network vnet create --resource-group pybossa --name pybossa-vnet --address-pr
 # Deploy the redis master container
 az container create  --name pybossa-redis-pvt --resource-group pybossa  --image redis:3.0-alpine  --vnet pybossa-vnet  --subnet backend-snt --restart-policy always --ports 6379
 
-# Note the IP of the redis container to be updated in aci-redis-sentinal-private.yaml as <redis-container-ip>
+# Note the IP of the redis container to be updated in *aci-redis-sentinal-private.yaml* as *<redis-container-ip>*
 az container show --resource-group pybossa --name pybossa-redis-pvt --query ipAddress.ip --output tsv
 
-# Note the network profile id to be updated in aci-redis-sentinal-private.yaml and aci-pbworker-private.yaml as <network-profile-id>
+# Note the network profile id to be updated in *aci-redis-sentinal-private.yaml* and *aci-pbworker-private.yaml* as *<network-profile-id>*
 az network profile list --resource-group pybossa  --query [0].id --output tsv
 
-# Grab the username and password for the container registry and update aci-redis-sentinal-private.yaml and aci-pbworker-private.yaml for username, password and registry name
-az acr credential show -n <registry>.azurecr.io
+# Grab the username and password for the container registry and update *aci-redis-sentinal-private.yaml* and *aci-pbworker-private.yaml* for *<registry-username>*, *<registry-password>* and *<registry-name>*
+az acr credential show -n <registry-name>.azurecr.io
 
 # Deploy the Sentinel container
 az container create --resource-group pybossa  --file aci-redis-sentinal-private.yaml
 
-# Note the IP of the redis container to be updated in aci-pbworker-private.yaml as <redis-sentinel-ip>
+# Note the IP of the redis container to be updated in *aci-pbworker-private.yaml* as *<redis-sentinel-ip>*
 az container show --resource-group pybossa --name pybossa-redis-sentinel-pvt --query ipAddress.ip --output tsv
 
 # Deploy the worker container
@@ -100,7 +101,7 @@ az container create --resource-group pybossa  --file aci-pbworker-private.yaml
 # Create an app service plan
 az appservice plan create --name pybossa-plan --resource-group pybossa --is-linux --sku P1V2
 
-# Create an app service. Note that the app-name will be part of the url like https://<app-name>.azurewebsites.net
+# Create an app service. Note that the app-name will be part of the url like *https://<app-name>.azurewebsites.net*
 az webapp create --resource-group pybossa --plan pybossa-plan --name <app-name> --deployment-container-image-name <registry-name>.azurecr.io/pybossa:latest
 
 # Configure the environment variables
@@ -116,6 +117,6 @@ az webapp vnet-integration add -g pybossa -n <app-name> --vnet pybossa-vnet --su
 
 ```
 
-Launch the application by navigating to https://<app-name>.azurewebsites.net 
+Launch the application by navigating to *https://<app-name>.azurewebsites.net* 
 
 

@@ -30,6 +30,7 @@ git clone https://github.com/seenu433/pybossa-on-azure
 ```bash
 # building the redis sentinel image
 cd docker-redis-sentinel
+dos2unix entrypoint.sh  # run this command if using windows command prompt
 docker build -t <registry-name>.azurecr.io/redis-sentinel:latest . 
 docker push <registry-name>.azurecr.io/redis-sentinel:latest
 

@@ -12,7 +12,7 @@ RUN set -x && \
 # add unprivileged user for running the service
 ENV LIBRARY_PATH=/lib:/usr/lib
 RUN set -x && \
-    git clone --recursive https://github.com/Scifabric/pybossa /opt/pybossa && \
+    git clone --recursive https://github.com/Scifabric/viet-do/pybossa /opt/pybossa && \
     cd /opt/pybossa && \
     sed -i 's/pyparsing==2.3.0/pyparsing>=2.3.0/g' setup.py
 

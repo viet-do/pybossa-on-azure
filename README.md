@@ -31,15 +31,15 @@ git clone https://github.com/seenu433/pybossa-on-azure
 # building the redis sentinel image
 cd docker-redis-sentinel
 dos2unix entrypoint.sh  # run this command if using windows command prompt
-docker build -t <registry-name>.azurecr.io/redis-sentinel:latest . 
-docker push <registry-name>.azurecr.io/redis-sentinel:latest
+docker build -t regpybossa.azurecr.io/redis-sentinel:latest . 
+docker push regpybossa.azurecr.io/redis-sentinel:latest
 
 # building the pybossa image
 cd ..
 cd docker-pybossa
 dos2unix entrypoint.sh  # run this command if using windows command prompt
-docker build -t <registry-name>.azurecr.io/pybossa:latest .
-docker push <registry-name>.azurecr.io/pybossa:latest
+docker build -t regpybossa.azurecr.io/pybossa:latest .
+docker push regpybossa.azurecr.io/pybossa:latest
 cd ..
 ```
 
@@ -62,10 +62,10 @@ Run the container locally to test. Docker installation required.
 docker run -d --name redis-master redis:3.0-alpine
 
 # Install redis-sentinel
-docker run -d --name redis-sentinel  --link redis-master  <registry-name>.azurecr.io/redis-sentinel
+docker run -d --name redis-sentinel  --link redis-master  regpybossa.azurecr.io/redis-sentinel
 
 # Install pybossa app
-docker run -d --name pybossa --link redis-master --link redis-sentinel -e POSTGRES_URL="postgresql://<username>:<password>@<servername>.postgres.database.azure.com/pybossa" -p 8080:8080  <registry-name>.azurecr.io/pybossa:latest
+docker run -d --name pybossa --link redis-master --link redis-sentinel -e POSTGRES_URL="postgresql://<username>:<password>@<servername>.postgres.database.azure.com/pybossa" -p 8080:8080  regpybossa.azurecr.io/pybossa:latest
 ```
 
 Test the app by opening a browser window and navigating to *http://localhost:8080*

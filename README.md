@@ -16,7 +16,7 @@ az group create --name pybossa --location eastus
 Create an [Azure Container Registry](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-azure-cli) to store the images
 ```azurecli
 az acr create --resource-group pybossa --name <registry-name> --sku Basic
-az acr login --name <registry-name>
+az acr login --name regpybossa
 az acr update -n <registry-name> --admin-enabled true
 ```
 

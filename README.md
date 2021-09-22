@@ -39,6 +39,7 @@ cd ..
 cd docker-pybossa
 dos2unix entrypoint.sh  # run this command if using windows command prompt
 docker build -t regpybossa.azurecr.io/pybossa:latest .
+docker build  --build-arg CACHEBUST=<var> -t registry.azurecr.io/pybossa:latest .
 docker push regpybossa.azurecr.io/pybossa:latest
 cd ..
 ```
